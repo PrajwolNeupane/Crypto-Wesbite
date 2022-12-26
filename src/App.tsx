@@ -1,25 +1,18 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { Typography } from '@mui/material';
+import { useAppSelector, useAppDispatch } from './StateHooks'
+import NavBar from './Componets/NavBar';
+import HomePage from './Page/HomePage';
 
 function App() {
+
+  const numOfCakes = useAppSelector(state => state.CoinList)
+  const dispatch = useAppDispatch()
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+    <NavBar />
+    <HomePage/>
+    </>
   );
 }
 
