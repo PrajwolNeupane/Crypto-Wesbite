@@ -1,6 +1,7 @@
 import { Stack, Typography, Avatar } from "@mui/material";
-import { useEffect, useState } from 'react';
-import axios from 'axios';
+import { useState } from 'react';
+import { useNavigate } from "react-router-dom";
+import { useAppSelector } from '../StateHooks'
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import Slider from "react-slick";
@@ -25,12 +26,11 @@ export function numberWithCommas(x: number) {
 let Header: React.FC<Props> = ({ }) => {
 
     const [data, setData] = useState<All_Data>([]);
+    const Navigate = useNavigate();
 
     const settings = {
         infinite: true,
-        speed: 1500,
-        slidesToShow: 1,
-        slidesToScroll: 1,
+        speed: 800,
         autoplay: true,
         autoplaySpeed: 4000,
         pauseOnHover: false,
@@ -38,50 +38,40 @@ let Header: React.FC<Props> = ({ }) => {
         arrows: false,
         useCSS: true
     };
-
-    useEffect(() => {
-        const getData = async () => {
-            try {
-
-                const res = await axios.get("https://api.coingecko.com/api/v3/coins/markets?vs_currency=EUR&order=gecko_desc&per_page=10&page=1&sparkline=false&price_change_percentage=24h");
-                setData(res.data);
-
-            } catch (e) {
-                console.log(e);
+    const responsive = [
+        {
+            breakpoint: 800,
+            settings: {
+                slidesToShow: 2,
             }
-        }
-        getData();
-    }, []);
+        },
+        {
+            breakpoint: 500,
+            settings: {
+                slidesToShow: 1,
+            }
+        },
+    ]
+
+    const { trendingcoin } = useAppSelector(state => state.TrendingCoin)
+    const { symbol } = useAppSelector(state => state.Currency)
+
 
     return (
-        <Stack sx={{ height: "500px", backgroundColor: "text.secondary" }}>
-            <Slider {...settings} className="slide">
+        <Stack sx={{ height: "450px", background: "linear-gradient(to Left,rgb(255, 70, 85,.6), rgb(255, 70, 85,1)) ,url(https://usa.visa.com/content/dam/VCOM/regional/na/us/Solutions/visa-crypto-opportunities-1920x720.jpg)", backgroundRepeat: "no-repeat", backgroundSize: "cover", backgroundAttachment: "fixed" }}>
+            <Slider {...settings} className="slide" responsive={responsive} slidesToShow={3} slidesToScroll={1}>
                 {
-                    data.map((curr: any, index: number) => (
-                        <Stack sx={{ flexDirection: "row", alignItems: "center", width: { md: "96%", sm: "98%", lg: "90%" }, height: "400px", padding: "50px 100px" }}>
-                            <Stack sx={{ float: "left", height: "100%", width: "30%", alignItems: "center", justifyContent: "space-between" }}>
-                                <Avatar src={curr?.image} sx={{ width: "300px", height: "300px", objectFit: "center", backgroundColor: "white" }} />
-                                <Typography variant="h3" sx={{ fontSize: "22px" }}>
-                                    <span style={{ fontWeight: 600 }}>Current Pirce :</span> € {numberWithCommas(curr?.current_price)}
-                                </Typography>
-                            </Stack>
-                            <Stack sx={{ flexDirection: "column", gap:"5px",marginLeft:"40%",justifyContent:"center",height:"100%"}}>
-                                <Typography variant='h2' sx={{ color: "otherColor.main", fontSize: { lg: "60px", md: "50px", sm: "30px" } }}>
-                                    {curr?.symbol.toUpperCase()}
-                                </Typography>
-                                <Typography variant='h3' sx={{ color: "otherColor.main", fontSize: { lg: "40px", md: "30px", sm: "20px" } }}>
-                                    {curr?.name}
-                                </Typography>
-                                <Typography variant='h4' sx={{ color: "otherColor.main", fontSize: { lg: "20px", md: "18px", sm: "16px" } }}>
-                                Rank : {curr?.market_cap_rank}
-                                </Typography>
-                                <Typography variant='h4' sx={{ color: "otherColor.main", fontSize: { lg: "20px", md: "18px", sm: "16px" } }}>
-                                24h Change : {curr?.price_change_percentage_24h}
-                                </Typography>
-                                <Typography variant='h4' sx={{ color: "otherColor.main", fontSize: { lg: "20px", md: "18px", sm: "16px" } }}>
-                                Market Capital : € {numberWithCommas(curr?.market_cap)}
-                                </Typography>
-                            </Stack>
+                    trendingcoin.map((curr: any, index: number) => (
+                        <Stack sx={{ height: "100rem", padding: "75px 0px", alignItems: 'center', gap: "100px" }}>
+                            <Avatar src={curr?.image} sx={{
+                                width: "12rem", height: "12rem", marginLeft: "50%", transform: "translateX(-50%)", backgroundColor: "white", border: "5px solid white", transition: "0.25s", ":hover": {
+                                    boxShadow: "rgba(0, 0, 0, 0.35) 0px 5px 15px", border: "5px solid #272729"
+                                }, cursor: "pointer"
+                            }} onClick={() => { Navigate(curr?.id) }} />
+                            <Typography sx={{ textAlign: "center", fontSize: "30px" }} variant="h2">{curr?.symbol.toUpperCase()}</Typography>
+                            <Typography sx={{ textAlign: "center", fontSize: "20px" }} variant="h3">{curr?.name}</Typography>
+                            <Typography variant="h4" sx={{ textAlign: "center", fontSize: "16px" }}>{`Current Price : ${symbol} ` + numberWithCommas(curr?.current_price)}</Typography>
+                            <Typography variant="h4" sx={{ textAlign: "center", fontSize: "16px" }}>{`Market Cap : ${symbol} ` + numberWithCommas(Math.trunc(curr?.market_cap / 10000)) + "M"}</Typography>
                         </Stack>
                     ))
                 }
